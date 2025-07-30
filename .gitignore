@@ -1,0 +1,14 @@
+# Dumped databases from firmware.
+dumped
+
+# Custom keys produced by 'generate-keys.sh'.
+mykeys
+
+# Finalized secure boot databases.
+final
+finalwork
+
+# Extra certificates - controlled by user.
+# They can copy the contents of extracerts.DEFAULT if they wish.
+extracerts/kek
+extracerts/db
