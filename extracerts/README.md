@@ -33,6 +33,15 @@ matters can be found in the [top-level README.md file](../README.md). You can
 also safely remove the MassOS db certificate if you have no plans to boot or
 use MassOS GNU/Linux. MassOS also does not have a KEK certificate.
 
+Some third party certificates may be distributed in the **DER** binary format,
+instead of the default **PEM** format. Such certificates will instead use the
+extension `.cer` or `.der`. You can use the OpenSSL command-line utility to
+convert a **DER** certificate to a **PEM** one (replace `example` with the
+actual name of the file):
+```
+openssl x509 -in example.der -inform DER -out example.crt -outform PEM
+```
+
 You may also wish to add OEM certificates for your device, which can be dumped
 from your main system using the `dump-existing.sh` script, though this is only
 required if some utility or function that is built-in to the firmware is signed
