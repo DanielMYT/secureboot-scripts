@@ -12,6 +12,13 @@ own risk, and make sure you understand what the scripts are actually doing
 under the hood. The author assumes no resonsibility for any negative
 consequences which may occur as a result of you (mis)using these scripts.
 
+# Get started
+The following sections contain some recommended and/or interesting reading
+about how secure boot works under the hood, and the purpose of these scripts'
+existence. If you don't care about this and want to get straight on with the
+process, scroll down to the **The process of taking control of secure boot**
+section.
+
 # Terminology
 You should be aware that the term **"Key"** traditionally refers to the private
 signing key which is used to sign binaries and signature lists, while the term
@@ -70,6 +77,138 @@ The UEFI secure boot environment has four main databases:
   hand, it may be considered by some individuals to be a "backdoor", as
   Microsoft can at their own discretion update the databases of what is/isn't
   trusted to load on your machine.
+
+# Why take control of secure boot?
+As shown in the **Overview** section above, you can clearly see that, in the
+default state of secure boot, the only entities that have control over the
+secure boot environment on the computer you are using are the device OEM and
+Microsoft. This means only they can decide what is or isn't allowed to boot on
+your system. As we have also established, this means you cannot "alter" the
+certificate list that control what can or can't boot, because any updates to
+**Authorized Signatures (db)** requires one of the **Key Exchange Keys (KEK)**
+to sign (therefore "authorize") the update.
+
+There is an exception on some systems, primarily ones which use **AMI Aptio V**
+firmwares. Such firmwares are special, because they actually expose options for
+direct key management within the firmware settings. This allows you to directly
+update any of the variables, including **Authorized Signatures (db)**, without
+those updates needing to be signed by the authority above the variable you are
+updating. This means you don't need to take control of secure boot at all in
+order to be able to modify the certificates that the system trusts (however you
+may still want to, due to the obvious benefits of having control and freedom).
+Although the interface is complicated and unintuitive to naviagate, there is an
+[article](https://github.com/MassOS-Linux/MassOS/wiki/UEFI-Secure-Boot) in the
+MassOS documentation which contains a section with detailed instructions of how
+to import a custom certificate using this firmware interface. Although that
+article is specifically centered around the MassOS secure boot certificate, you
+could theoretically follow the same instructions to import any secure boot
+certificate, or a group of certificates.
+
+However, most other systems, particularly laptops, do not have such options in
+the firmware settings. Therefore, the only way to import custom certificates is
+to take control of the secure boot environment, such that your own certificates
+are in **PK** and **KEK**, and therefore can sign any **db** updates you want.
+This is where the scripts in this repository are invaluable, so we'd highly
+recommend reading on.
+
+As for why not just disable secure boot, well there are two main reasons. One
+is a pragmatic reason - if you dual-boot your GNU/Linux system with Windows,
+then some Windows-only features will be blocked without secure boot. These
+include the **Windows Device Encryption** feature (which is an alternative to
+BitLocker on Home editions of Windows which don't support BitLocker), as well
+as several other security-related features. Note, however, that Windows 11's
+system requirements do **NOT** require secure boot to enabled - this is a
+common misconception. However they do require secure boot to be **supported**
+by the system.
+
+The second reason you may not want to disable it is simply for the security it
+should offer. The whole point of the system is to block malware and other
+undesirable code from loading during the early boot stage. The secure boot
+system doesn't only apply to the `.efi` binaries that boot from the firmware -
+it also initiates a chain of trust that ensures security during the entirety of
+the system boot-up process. In the context of GNU/Linux, having secure boot
+enabled should trigger the bootloader to verify that the Linux kernel image it
+loads is signed, and then the Linux kernel should verify all its modules are
+signed (and refuse to load unsigned modules, by making use of the kernel
+lockdown feature).
+
+Unfortunately, whether or not the factory state of secure boot is really
+"secure", depends on whether or not you trust Microsoft. The presence of the
+OEM's certificate is likely negligible, since it will only be used to sign the
+OEM's own internal debugging/diagnostics, but the presense of Microsoft's
+certificates, especially their KEK, could be considered a "backdoor", since it
+allows them to update your system's db or dbx databases at any time. While the
+scripts in this repo do give you the option of having Microsoft's KEK installed
+alongside your own KEK, the choice is entirely yours, and you can choose to
+exclude Microsoft's KEK certificate from your KEK database if desired, without
+affecting your ability to boot Windows (assuming you keep Microsoft's db
+certificates).
+
+# Why haven't I heard about this until now?
+Either you have just kept secure boot disabled as you've seen it as useless, or
+you have always used a distro which is **signed by Microsoft**, and hence is
+authorized by Microsoft to boot on any system even with the factory secure boot
+setup.
+
+Since the **GRUB 2** bootloader, used by most modern GNU/Linux distributions,
+is licensed under the **GPLv3**, Microsoft will refuse to sign it. This is
+because the **GPLv3** license is intentionally designed to protect you from the
+problem of **TiVoization** - whereby free software is effectively rendered
+non-free, due to it existing in an environment (e.g., on a hardware device)
+that itself does not permit running modified versions of the software. So in
+other words, you could download and modify the free software program, but would
+have no way to run it on the locked-down device that the original version runs
+on. In the context of a factory secure boot system, this applies because only
+Microsoft-signed binaries are allowed to run on the system by default, and your
+modified version would not be Microsoft-signed.
+
+To work around this problem, distributions instead use a companion bootloader
+called **shim**. **shim** is licensed under a more permissive license, and can
+therefore be signed by Microsoft - and then **shim** can use its own internal
+database, known as the **MOKList (Machine Owner Keys)** to verify if the main
+bootloader (e.g., **GRUB 2**) is allowed to start up. By this logic, Microsoft
+only needs to sign **shim**, and then any other binaries can be signed by keys
+that are either compiled in to **shim**'s vendor database, or in the MOKList.
+
+Unfortunately, this still creates an non-level playing field, since **shim** is
+essentially useless if it's not Microsoft-signed. This is because, although
+**shim** uses its own internal database (MOKList) separate to the main UEFI
+secure boot databases, **shim** has to be signed by a key trusted by the
+firmware to be able to load in the first place. From an end user's perspective,
+this is not a big deal, since the distribution maintainers will deal with it.
+From a distribution maintainer's perspective, this is problematic. In order to
+have your **shim** build signed by Microsoft, you first have to submit it to
+the [shim review board](https://github.com/rhboot/shim-review), who, besides
+having the audacity to directly state that they are the ones who decide what
+["the world is able to boot"](https://go.dmassey.net/shimscam) (although the
+scripts in this repository make every effort to change who REALLY should have
+control of this, and the answer is **only the device owner**), also require
+the entity submitting the **shim** binary to be officially recognised as a
+corporation or organization under their jurisdiction. Clearly this is not
+practical for small, community-driven projects, like MassOS. And this problem
+was one of the reasons for these scripts' existence to begin with - to level
+out the playing field and give people back control over their own computers.
+
+While MassOS could instead just yoink the signed **shim** binary from another
+distribution, such as **Ubuntu** or **Fedora**, this raises ethical issues,
+including creating reliance on a distribution outside of MassOS's control, and
+being essentially reliant on non-free software, since again, you _could_
+modify **shim**, but then you loose the Microsoft signature! Rather than try to
+buy into this problem, the MassOS developers took the decision to instead
+compile and self-sign everything, and provide documentation on how users can
+import the needed secure boot certificates into their own firmware. And this
+may require using the scripts in this repository to take control over your own
+computer's secure boot environment, but it is a worthwhile trade-off, to always
+promote and foster freedom and control over your own computing.
+
+Even if you aren't a user of MassOS, we hope you will agree with most of what
+has been written, and will therefore make the decision to take ownership and
+control over your own computer's secure boot environment, without the need to
+instead compromise the security of your machine by turning off secure boot
+entirely (which would also be the boring and easy way out if you really think
+about it). The scripts in this repository have been designed (and documented)
+to make the process as simple as possible. The author(s) can only hope you will
+benefit from it!
 
 # The process of taking control of secure boot
 
@@ -168,9 +307,9 @@ bootctl status
 ```
 It will give one of the following outputs on the "Secure Boot:"" line:
 ```sh
-Secure Boot: enabled (user) # Secure boot is enabled - PK is locked.
-Secure Boot: disabled # Secure boot is disabled - PK is still locked.
-Secure Boot: disabled (setup) # Setup mode - PK is cleared and replaceable.
+Secure Boot: enabled (user)   #Secure boot is enabled - PK is locked.
+Secure Boot: disabled         #Secure boot is disabled - PK is still locked.
+Secure Boot: disabled (setup) #Setup mode - PK is cleared and replaceable.
 ```
 Clearly, you want the line which reads `disabled (setup)`. If this is the case,
 you are good to proceed! Try to run the previously mentioned command again:
