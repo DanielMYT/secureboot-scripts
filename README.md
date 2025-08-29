@@ -116,10 +116,18 @@ is a pragmatic reason - if you dual-boot your GNU/Linux system with Windows,
 then some Windows-only features will be blocked without secure boot. These
 include the **Windows Device Encryption** feature (which is an alternative to
 BitLocker on Home editions of Windows which don't support BitLocker), as well
-as several other security-related features. Note, however, that Windows 11's
-system requirements do **NOT** require secure boot to enabled - this is a
-common misconception. However they do require secure boot to be **supported**
-by the system.
+as several other security-related features. Furthermore, online multiplayer
+video games often make use of aggressive anti-cheat engines, and these engines
+frequently require secure boot to be enabled, and will prevent you from running
+the game if secure boot is disabled. If you therefore dual-boot with a distro
+of GNU/Linux which is not Microsoft-signed, and play such a video game under
+Windows, you'd be stuck between having secure boot enabled or disabled. This is
+until now - whereby you can use these scripts to take ownership of secure boot
+yourself, instead of disabling it outright.
+
+It should be noted that the system requirements of Windows 11 do **NOT**
+require secure boot to _enabled_ - this is a common misconception. However they
+do require secure boot to be **supported** by the system.
 
 The second reason you may not want to disable it is simply for the security it
 should offer. The whole point of the system is to block malware and other
@@ -143,6 +151,17 @@ alongside your own KEK, the choice is entirely yours, and you can choose to
 exclude Microsoft's KEK certificate from your KEK database if desired, without
 affecting your ability to boot Windows (assuming you keep Microsoft's db
 certificates).
+
+# Comparison table
+
+| Mode | Factory state | Secure boot disabled | Using these scripts |
+|-|-|-|-|
+| Owner | OEM | N/A | You |
+| Controlled by | OEM + Microsoft | N/A | You (+ OPTIONALLY Microsoft/OEM) |
+| Security level | Debatable | Requires common sense | Secure |
+| Some Windows features | Available | Blocked | Available |
+| Video game anti-cheat | Permitted | Forbidden | Permitted |
+| Think of it as | Restricted boot | YOLO | Secure boot |
 
 # Why haven't I heard about this until now?
 Either you have just kept secure boot disabled as you've seen it as useless, or
