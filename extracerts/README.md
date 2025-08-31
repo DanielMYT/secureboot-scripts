@@ -33,6 +33,23 @@ matters can be found in the [top-level README.md file](../README.md). You can
 also safely remove the MassOS db certificate if you have no plans to boot or
 use MassOS GNU/Linux. MassOS also does not have a KEK certificate.
 
+**NOTE:** The certificate named "Microsoft Windows Production PCA 2011" was
+revoked by Microsoft due to the **BlackLotus** bootkit vulnerability. It was
+replaced by the "Windows UEFI CA 2023" certificate, which is now used to sign
+modern versions of Windows 10 and Windows 11. However, older versions of
+Windows 10, as well as all versions of Windows 8.1 and Windows 8, were only
+signed using the old certificate. If you are using a modern version of Windows,
+you therefore do not need the certificate. However, if you do need it for some
+reason, you can find it under the `extracerts.REVOKED/` directory, and can copy
+it over to `extracerts/` as necessary. However this is not recommended, due to
+the certificate being vulnerable to **BlackLotus**, as previously mentioned.
+Additionally, if you intend to use Microsoft's KEK certificate, as described
+above, then Microsoft may push an update to your dbx which dynamically revokes
+the certificate at any time. Note that "Microsoft Corporation UEFI CA 2011",
+which has signed third-party operating systems and bootloaders authorized by
+Microsoft, is NOT revoked, and IS still valid. ONLY the Windows-specific 2011
+certificate is revoked.
+
 Some third party certificates may be distributed in the **DER** binary format,
 instead of the default **PEM** format. Such certificates will instead use the
 extension `.cer` or `.der`. You can use the OpenSSL command-line utility to
