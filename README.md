@@ -352,6 +352,39 @@ efi-readvar -v KEK
 efi-readvar -v db
 ```
 
+# What next?
+You now have control of secure boot - great! But what comes next? This section
+will demonstrate how to perform common tasks as the owner of the secure boot
+environment, including adding new certificates into the Authorized Signatures
+(db) list, as well as how to sign EFI binaries so they can be booted under your
+secure boot environment.
+
+## Signing binaries
+You do **NOT** need to sign Windows, as it is already signed by Microsoft, and
+the Microsoft certificates should be in your Authorized Signatures (db) list.
+You also do **NOT** need to sign the binaries of any distro that is signed by
+Microsoft, such as Ubuntu or Fedora, for the same reason. You **will** need to
+sign any custom/loose EFI binaries which are not signed, and you will also need
+to sign the bootloader/kernel if you use a distribution that does not sign such
+out of the box, such as Arch Linux. If the distribution **does** sign stuff out
+of the box, then you will simply need to import that distribution's secure boot
+certificate into your firmware - instructions for this are given in the section
+below titled **Importing new certificates**.
+
+To sign binaries, you need to have the `sbsign` program installed. It comes
+from a package named **sbsigntools** or **sbsigntool** on most distributions.
+Once you have it installed, signing a binary is simple:
+```
+sbsign --key path/to/your/db.key --cert path/to/your/db.crt mybinary.efi
+```
+This will produce the output signed file as `mybinary.efi.signed` - you can
+then move/rename/copy this as desired (such as removing `.signed` extension).
+The arguments for `--key` and `--cert` are the paths to your UEFI signing
+private key and PEM-encoded public certificate respectively. If you followed
+the steps in this repository, these will be saved as `mykeys/private/db.key`
+and `mykeys/public/db.crt`. Note that only the db key/cert is used for signing;
+you do not sign binaries using the PK or KEK keys..
+
 # Licensing
 The scripts are Copyright (C) Daniel Massey and MIT licensed. See the LICENSE
 file for the license text.
