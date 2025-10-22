@@ -44,7 +44,7 @@ mkdir -p mykeys/{private,public}
 # Generate PK, KEK and db keys.
 openssl req -new -x509 -newkey rsa:2048 -sha256 -keyout mykeys/private/PK.key -out mykeys/public/PK.crt -days 3650 -nodes -subj "/CN=$pkname/"
 openssl req -new -x509 -newkey rsa:2048 -sha256 -keyout mykeys/private/KEK.key -out mykeys/public/KEK.crt -days 3650 -nodes -subj "/CN=$kekname/"
-openssl req -new -x509 -newkey rsa:2048 -sha256 -keyout mykeys/private/db.key -out mykeys/public/db.crt -days 3650 -nodes -subj "/CN=$dbname/"
+openssl req -new -x509 -newkey rsa:2048 -sha256 -keyout mykeys/private/db.key -out mykeys/public/db.crt -days 3650 -nodes -subj "/CN=$dbname/" -addext "extendedKeyUsage=codeSigning"
 
 # Finishing message.
 echo "Your newly generated keys and certificates were placed in 'mykeys/'."
