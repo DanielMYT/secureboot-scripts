@@ -55,7 +55,23 @@ if test -z "${extrakeks[0]}"; then
   echo "WARNING: Not including any additional KEK certificates." >&2
 fi
 if test -z "${extradbs[0]}"; then
+  # Sorry for the EXTREMELY naggy warning message, but we need it.
   echo "WARNING: Not including any additional db certificates." >&2
+  echo "WARNING:" >&2
+  echo "WARNING: You may NOT be able to boot Windows nor MS-signed Linux." >&2
+  echo "WARNING: If this was unintentional, press Control+C IMMEDIATELY." >&2
+  echo "WARNING: And set up extracerts before proceeding any further." >&2
+  echo "WARNING:" >&2
+  echo "WARNING: For the simplest usage, just run the following command:" >&2
+  echo "WARNING:" >&2
+  echo "WARNING:         cp -rv extracerts.DEFAULT/{db,kek} extracerts/" >&2
+  echo "WARNING:" >&2
+  echo "WARNING: Re-run $(basename "$0") (this script) after doing so." >&2
+  echo "WARNING: This warning message will then no longer appear." >&2
+  echo "WARNING:" >&2
+  echo "WARNING: See README.md for full details on how to customize." >&2
+  echo "WARNING: Otherwise this script will continue in 30 seconds." >&2
+  sleep 30
 fi
 
 # Create directories we need.
