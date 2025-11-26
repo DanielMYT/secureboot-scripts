@@ -11,6 +11,16 @@ more information about this. Note that the `create-databases.sh` searches the
 two aforementioned subdirectories recursively, and ignores any files without a
 `.crt` file extension.
 
+Note also that as of the latest commit, it is now possible to define a fixed
+GUID for each certificate. If you know which GUID belongs to your certificate,
+you can put it on a single line in the file named `<mycert>.crt.guid`. You need
+not panic if you don't know the GUID though - if the `.crt.guid` file does not
+exist, then `create-databases.sh` will auto-generate a random GUID for it.
+It's important to note that owner GUIDs serve an informational purpose only.
+The UEFI firmware itself does not care what GUID is used for each certificate,
+but it is a suggested convention to used predefined GUIDs for certain vendors.
+For example, Microsoft's GUID is `77fa9abd-0359-4d32-bd60-28f4e78f784b`.
+
 Under the top-level directory of this repository, there is a folder named
 `extracerts.DEFAULT/`. This contains some commonly desired certificates for
 both KEK and db, which you may or may not want to include in your databases.

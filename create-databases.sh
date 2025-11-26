@@ -40,6 +40,24 @@ if ! command -v cert-to-efi-sig-list &>/dev/null || ! command -v sign-efi-sig-li
   exit 1
 fi
 
+# Determine how we can best generate UUIDs.
+if uuidgen &>/dev/null; then
+  # uuidgen utility from util-linux.
+  _uuidgen="uuidgen"
+elif cat /proc/sys/kernel/random/uuid &>/dev/null; then
+  # Inbuilt kernel generator (requires /proc to be mounted).
+  _uuidgen="cat /proc/sys/kernel/random/uuid"
+elif python3 -m uuid; then
+  # The uuid module from Python 3.
+  _uuidgen="python3 -m uuid"
+else
+  # No suitable UUID generator found.
+  echo "No suitable UUID generation method was found." >&2
+  echo "Please install uuidgen, OR mount /proc, OR install Python 3." >&2
+  exit 1
+fi
+echo "NOTE: UUIDs will be generated using '$_uuidgen'."
+
 # Set up array to list additional certs that should be included.
 extrakeks=()
 extradbs=()
@@ -82,22 +100,46 @@ if test -z "${extradbs[0]}"; then
   sleep 30
 fi
 
+# Use owner GUID from file, or randomly generate if missing.
+if test -r mykeys/owner.guid; then
+  ownerguid="$(cat mykeys/owner.guid)"
+  echo "NOTE: Using previously-generated owner GUID ($ownerguid) for mykeys."
+else
+  ownerguid="$($_uuidgen)"
+  echo "NOTE: No owner GUID found for mykeys, using random one ($ownerguid)."
+  echo "NOTE: You can save it with 'echo $ownerguid > mykeys/owner.guid'."
+fi
+
 # Create directories we need.
 mkdir -p finalwork/{esl/{split/{KEK,db},combined},auth}
 
 # Create combined ESL for PK (as there is only one PK certificate).
-cert-to-efi-sig-list -g "$(uuidgen)" mykeys/public/PK.crt finalwork/esl/combined/PK.esl
+cert-to-efi-sig-list -g "$ownerguid" mykeys/public/PK.crt finalwork/esl/combined/PK.esl
 
 # Create split ESLs for each KEK and DB.
-cert-to-efi-sig-list -g "$(uuidgen)" mykeys/public/KEK.crt finalwork/esl/split/KEK/0000_KEK.esl
+cert-to-efi-sig-list -g "$ownerguid" mykeys/public/KEK.crt finalwork/esl/split/KEK/0000_KEK.esl
 for c in "${extrakeks[@]}"; do
+  # Use pre-defined GUID, or randomly generate if missing.
+  if test -e "$c".guid; then
+    g="$(cat "$c".guid)"
+  else
+    echo "NOTE: $c does not have an existing GUID, will randomly generate one."
+    g="$($_uuidgen)"
+  fi
   o="$(echo "$c" | sed -e 's|^extracerts/kek/||' -e 's|.crt$||' -e 's|/|_|g')"
-  cert-to-efi-sig-list -g "$(uuidgen)" "$c" finalwork/esl/split/KEK/"$o".esl
+  cert-to-efi-sig-list -g "$g" "$c" finalwork/esl/split/KEK/"$o".esl
 done
-cert-to-efi-sig-list -g "$(uuidgen)" mykeys/public/db.crt finalwork/esl/split/db/0000_db.esl
+cert-to-efi-sig-list -g "$ownerguid" mykeys/public/db.crt finalwork/esl/split/db/0000_db.esl
 for c in "${extradbs[@]}"; do
+  # Use pre-defined GUID, or randomly generate if missing.
+  if test -e "$c".guid; then
+    g="$(cat "$c".guid)"
+  else
+    echo "NOTE: $c does not have an existing GUID, will randomly generate one."
+    g="$($_uuidgen)"
+  fi
   o="$(echo "$c" | sed -e 's|^extracerts/db/||' -e 's|.crt$||' -e 's|/|_|g')"
-  cert-to-efi-sig-list -g "$(uuidgen)" "$c" finalwork/esl/split/db/"$o".esl
+  cert-to-efi-sig-list -g "$g" "$c" finalwork/esl/split/db/"$o".esl
 done
 
 # Merge ESLs.

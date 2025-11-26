@@ -252,7 +252,13 @@ Once the generation is complete, the keys and their corresponding certificates
 will be placed under the `mykeys/` directory. The private keys will be under
 `mykeys/private/`, and the public certificates will be under `mykeys/public/`.
 You can freely share the public certificates to anyone, but **DO NOT** share
-the private keys! They are private for a reason.
+the private keys! They are private for a reason. The aforementioned script will
+also generate a random owner GUID for your key set, which will be written to
+the file `mykeys/owner.guid`. Owner GUIDs serve a purely informational purpose
+only - the UEFI firmware itself does not care whether a fixed or random GUID is
+used, but having a unique GUID is useful for convention. GUIDs are generally
+per-individual / per-vendor / per-organization / etc. Microsoft's GUID, for
+example, is `77fa9abd-0359-4d32-bd60-28f4e78f784b`.
 
 ## Add extra third-party certificates
 Before generating the new secure boot databases, you will most likely want to
