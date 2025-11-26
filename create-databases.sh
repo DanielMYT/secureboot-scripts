@@ -7,6 +7,9 @@
 # Exit on error.
 set -e
 
+# Expand PATH to contain efitools prebuilts.
+export PATH="$PATH:$(readlink -f "$(dirname "$0")")/efitools/extracted/bin"
+
 # Do not run if there is an existing 'final' or 'finalwork' directory.
 if test -e final; then
   echo "Remove the existing 'final' directory before running this." >&2
@@ -29,6 +32,11 @@ fi
 # Require efitools to be installed.
 if ! command -v cert-to-efi-sig-list &>/dev/null || ! command -v sign-efi-sig-list &>/dev/null; then
   echo "This script requires the utilities from the 'efitools' package." >&2
+  echo "You can run the following command to setup prebuilt efitools:" >&2
+  echo >&2
+  echo "        ./efitools/efitools-prebuilt.sh" >&2
+  echo >&2
+  echo "Then re-run $(basename "$0"). It will auto-find the prebuilts." >&2
   exit 1
 fi
 

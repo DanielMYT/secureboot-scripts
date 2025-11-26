@@ -7,6 +7,9 @@
 # Exit on error.
 set -e
 
+# Expand PATH to contain efitools prebuilts.
+export PATH="$PATH:$(readlink -f "$(dirname "$0")")/efitools/extracted/bin"
+
 # Do not run if there is an existing 'dumped' directory.
 if test -e dumped; then
   echo "Remove the existing 'dumped' directory before running this script." >&2
@@ -20,6 +23,11 @@ if ! command -v openssl &>/dev/null; then
 fi
 if ! command -v efi-readvar &>/dev/null || ! command -v sig-list-to-certs &>/dev/null; then
   echo "This script requires the utilities from the 'efitools' package." >&2
+  echo "You can run the following command to setup prebuilt efitools:" >&2
+  echo >&2
+  echo "        ./efitools/efitools-prebuilt.sh" >&2
+  echo >&2
+  echo "Then re-run $(basename "$0"). It will auto-find the prebuilts." >&2
   exit 1
 fi
 

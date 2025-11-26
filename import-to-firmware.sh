@@ -3,6 +3,9 @@
 # Don't exit on error, since we can catch errors ourself to inform the user.
 set +e
 
+# Expand PATH to contain efitools prebuilts.
+export PATH="$PATH:$(readlink -f "$(dirname "$0")")/efitools/extracted/bin"
+
 # Ensure this script is run as root (required for efi-updatevar).
 if test $EUID -ne 0; then
   echo "This script must be run as root (use 'sudo')." >&2
@@ -19,7 +22,12 @@ fi
 
 # Require the efi-updatevar program from efitools to be installed.
 if ! command -v efi-updatevar &>/dev/null; then
-  echo "This script requires 'efi-updatevar' from the 'efitools' package." >&2
+  echo "This script requires the utilities from the 'efitools' package." >&2
+  echo "You can run the following command to setup prebuilt efitools:" >&2
+  echo >&2
+  echo "        ./efitools/efitools-prebuilt.sh" >&2
+  echo >&2
+  echo "Then re-run $(basename "$0"). It will auto-find the prebuilts." >&2
   exit 1
 fi
 
