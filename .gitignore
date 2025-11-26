@@ -12,3 +12,6 @@ finalwork
 # They can copy the contents of extracerts.DEFAULT if they wish.
 extracerts/kek
 extracerts/db
+
+# efitools standalone binaries (if distro doesn't provide efitools).
+efitools/extracted
