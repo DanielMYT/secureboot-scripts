@@ -15,11 +15,16 @@ The binary package was compiled on Ubuntu 16.04, with OpenSSL libraries being
 statically-linked. It is therefore compatible with almost any GNU/Linux distro
 released post-2016, and only depends on Glibc present on the host system (which
 is present out of the box on all GNU/Linux distributions). Unfortunately, it
-currently only supports the `x86_64` architecture. If you are on a different
-architecture, you will need to install a distribution-provided efitools package
-instead (or compile it yourself).
+currently only supports the `x86_64` and `aarch64` architectures. If you are on
+a different architecture, you will need to install a distribution-provided
+efitools package instead (or compile it yourself).
 
-The original, unsplit, unencoded tarball can alternatively be downloaded from
-[here](https://dmassey.net/files/misc/efitools-1.9.2-standalone-x86_64.tar.xz).
-The SHA256 checksum for the original binary package tarball is
-`369f0b30d4f3ae00ae8d3b63c88f49b66caa38cbf0a5a9f908104f963feac8fb`.
+The original, unsplit, unencoded tarballs can alternatively be downloaded from
+the following locations:
+
+- **x86_64**:
+  - https://dmassey.net/files/misc/efitools-1.9.2-standalone-x86_64.tar.xz
+  - SHA256: `369f0b30d4f3ae00ae8d3b63c88f49b66caa38cbf0a5a9f908104f963feac8fb`
+- **aarch64**:
+  - https://dmassey.net/files/misc/efitools-1.9.2-standalone-aarch64.tar.xz
+  - SHA256: `c1de7c4d764157bcd671a392a84aa497f225d5d1742471eb3c72a7954473b1cf`

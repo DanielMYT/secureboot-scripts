@@ -10,9 +10,15 @@ set -e
 # Where are we? We want to download alongside the script.
 here="$(readlink -f "$(dirname "$0")")"
 
-# Require x86_64 system.
-if test "$(uname -m)" != "x86_64"; then
-  echo "Sorry! Prebuilt efitools currently only supports x86_64 systems." >&2
+# Check architecture and set up values as necessary.
+if test "$(uname -m)" = "x86_64"; then
+  dir="distrib"
+  sum="369f0b30d4f3ae00ae8d3b63c88f49b66caa38cbf0a5a9f908104f963feac8fb"
+elif test "$(uname -m)" = "aarch64"; then
+  dir="distribarm"
+  sum="c1de7c4d764157bcd671a392a84aa497f225d5d1742471eb3c72a7954473b1cf"
+else
+  echo "Sorry! Prebuilt efitools currently only supports x86_64/aarch64." >&2
   echo "Please install the 'efitools' package from your distribution." >&2
   exit 1
 fi
@@ -27,10 +33,10 @@ rm -rf "$here"/extracted
 mkdir -p "$here"/extracted
 
 # Concatenate all parts of the package and decode from base64.
-cat "$here"/distrib/xa[a-x] | base64 -d > "$here"/extracted/package.tar.xz
+cat "$here"/"$dir"/xa[a-z] | base64 -d > "$here"/extracted/package.tar.xz
 
 # Verify checksum of restored package.
-echo "369f0b30d4f3ae00ae8d3b63c88f49b66caa38cbf0a5a9f908104f963feac8fb $here/extracted/package.tar.xz" | sha256sum -c
+echo "$sum $here/extracted/package.tar.xz" | sha256sum -c
 
 # Extract package.
 tar -xf "$here"/extracted/package.tar.xz -C "$here"/extracted --strip-components=1
