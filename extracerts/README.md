@@ -31,38 +31,44 @@ cp -r extracerts.DEFAULT/{db,kek} extracerts
 ```
 
 By default, this default set contains the Microsoft certificates for both KEK
-and db, as well as the official db certificate of [MassOS](https://massos.org).
-If any of these are undesired, you can remove some or all of them. However, we
+and db. If these are undesired, you can remove some or all of them. In
+particular, removing the Microsoft KEK certificates will prevent Microsoft from
+supplying and automatically installing dbx updates on your machine. Keeping the
+Microsoft KEK certificates will, on the other hand, allow both you and
+Microsoft to provide dbx updates. The distinction is explained in more detail
+in the [top-level README.md file](../README.md). In any case, we strongly
 recommend keeping at least the Microsoft db certificates, as they will be
 required for booting Windows and some Microsoft-signed GNU/Linux distributions.
-However, if you want to ensure you have full control over the system, and don't
-want Microsoft to be able to supply updates to db and dbx themselves, then you
-may safely delete the Microsoft KEK certificates. This would mean that only you
-can authorize db and dbx updates. More information about why this distinction
-matters can be found in the [top-level README.md file](../README.md). You can
-also safely remove the MassOS db certificate if you have no plans to boot or
-use MassOS GNU/Linux. MassOS also does not have a KEK certificate.
 
 **NOTE:** The certificate named "Microsoft Windows Production PCA 2011" was
 revoked by Microsoft due to the **BlackLotus** bootkit vulnerability. It was
-replaced by the "Windows UEFI CA 2023" certificate, which is now used to sign
-Windows 11 23H2 and all future versions, as well as retroactively re-signing
-existing installations of older versions of Windows 11 and Windows 10 via
-Windows security updates. However **ALL** Microsoft-provided ISOs for Windows
-11 versions older than 23H2, and **ALL Microsoft-provided Windows 10 ISOs**,
-are signed by the older 2011 certificate. Only Windows 11 23H2 and newer ISOs
-(or user-updated ones created via [UUPDump](https://uupdump.net/)) are / will
-be signed by the new 2023 certificate. As a result of this, the authors of the
-scripts in this repository have made the decision to keep the 2011 certificate
-included at the current time. You can, of course, remove it if desired, since
-as mentioned above, you can choose which certificates from the default set you
-want to include or exclude. Note that, if you intend to use Microsoft's KEK
-certificate, as described above, then Microsoft may push an update to your dbx
-at any time, which dynamically revokes the certificate and makes it unusable
-anyway. Note also that "Microsoft Corporation UEFI CA 2011", which has signed
-third-party operating systems and bootloaders authorized by Microsoft, is NOT
-revoked, and IS still valid. ONLY the Windows-specific 2011 certificate has
-been revoked.
+supposed to be replaced by the "Windows UEFI CA 2023" certificate. However
+Microsoft has yet to replace the bootloaders in any Windows ISOs with ones
+signed by their 2023 certificate. Even the latest Windows 11 ISO, which at the
+time of writing is **25H2**, still contains a Windows bootloader signed by the
+revoked 2011 certificate. Microsoft has begun rolling out updates to existing
+Windows installations that replaces their bootloader(s) with 2023-signed
+versions. However we do not recommend removing the 2011 certificate at this
+time. The `extracerts.DEFAULT/` directory contains both the 2011 and 2023
+certificates, with the aim of maximizing compatibility. Microsoft may soon
+supply a dbx update which fully revokes the Windows 2011 certificate (by
+blacklisting it) anyway. Note that the third-party MS 2011 certificate used
+to sign Linux shims is unaffected. You can disregard everything written in this
+paragraph if it made no sense to you. Microsoft is the one crapping their pants
+right now, you don't need to yourself. By including the MS 2023 certs out of
+the box, the scripts in this repository are actually filling in the gaps made
+by Microsoft automatically!
+
+As of the latest commit to this repository, there is also a directory called
+`extracerts.OPTIONAL/`. Similar to `extracerts.DEFAULT/` its contents can be
+copied over to the `extracerts/` directory if desired, but the difference is
+that these certificates are actually not required and may not even be desired
+by some users. At the time of writing, it contains the db certificate for
+[MassOS GNU/Linux](https://massos.org), which is useful to use if you intend to
+use MassOS, but is no longer essential, since MassOS now supports running under
+a Microsoft-signed shim, and you can simply import the MassOS certificate into
+shim's MokList database instead (which actually doesn't require taking control
+of secure boot in the first place).
 
 Some third party certificates may be distributed in the **DER** binary format,
 instead of the default **PEM** format. Such certificates will instead use the

@@ -15,9 +15,12 @@ consequences which may occur as a result of you (mis)using these scripts.
 # Get started
 The following sections contain some recommended and/or interesting reading
 about how secure boot works under the hood, and the purpose of these scripts'
-existence. If you don't care about this and want to get straight on with the
-process, scroll down to the **The process of taking control of secure boot**
-section.
+existence. It also contains some discussion about the ethical issues around
+secure boot. If you don't care about any of this and want to get straight on
+with the process, we have written a simplified no-fluff guide just for you -
+see [here](https://github.com/DanielMYT/secureboot-scripts/issues/1). However,
+even if you don't want to read all the mumbo jumbo, we would still recommend
+reading the section below titled **Why take control of secure boot?**.
 
 # Terminology
 You should be aware that the term **"Key"** traditionally refers to the private
@@ -150,7 +153,11 @@ scripts in this repo do give you the option of having Microsoft's KEK installed
 alongside your own KEK, the choice is entirely yours, and you can choose to
 exclude Microsoft's KEK certificate from your KEK database if desired, without
 affecting your ability to boot Windows (assuming you keep Microsoft's db
-certificates).
+certificates). And whatever you choose, you will still have **your own** certs
+installed in the firmware too - so **YOU, yes YOU** can override what Microsoft
+"authorizes" and be given the autonomy to choose what to boot on your own
+hardware - WITHOUT giving up the security benefits of secure boot which are
+described above.
 
 # Comparison table
 
@@ -203,31 +210,50 @@ having the audacity to directly state that they are the ones who decide what
 scripts in this repository make every effort to change who REALLY should have
 control of this, and the answer is **only the device owner**), also require
 the entity submitting the **shim** binary to be officially recognised as a
-corporation or organization under their jurisdiction. Clearly this is not
-practical for small, community-driven projects, like MassOS. And this problem
-was one of the reasons for these scripts' existence to begin with - to level
-out the playing field and give people back control over their own computers.
+corporation or organization under their jurisdiction with a full registered
+legal address. Clearly this is not practical for small, community-driven
+projects. And this problem was one of the reasons for these scripts' existence
+to begin with - to level out the playing field and give people back control
+over their own computers. WITHOUT compromising on security hardening features
+that operating systems enable if secure boot is turned on.
 
-While MassOS could instead just yoink the signed **shim** binary from another
-distribution, such as **Ubuntu** or **Fedora**, this raises ethical issues,
-including creating reliance on a distribution outside of MassOS's control, and
-being essentially reliant on non-free software, since again, you _could_
-modify **shim**, but then you loose the Microsoft signature! Rather than try to
-buy into this problem, the MassOS developers took the decision to instead
-compile and self-sign everything, and provide documentation on how users can
-import the needed secure boot certificates into their own firmware. And this
-may require using the scripts in this repository to take control over your own
-computer's secure boot environment, but it is a worthwhile trade-off, to always
-promote and foster freedom and control over your own computing.
+From the perspective of a distribution maintainer, one solution is just to
+yoink a Microsoft-signed **shim** binary from another distribution, such as
+**Ubuntu** or **Fedora**. This is what [MassOS](https://massos.org) does, as it
+turns out to be the easiest way to just make secure boot work. All users need
+to do is import the MassOS secure boot certificate into shim's internal MokList
+database, which is uncomplicated using **MokManager** (the companion program
+distributed alongside **shim**). However, this does not resolve the underlying
+ethical issues described above. This method is a convenient workaround, but the
+scripts in this repository go one step further. They retaliate AGAINST this
+problem by giving users back control over their own computers. With these
+scripts, the user can decide what can or cannot boot on their own machine. And
+this is done in two ways. One, by choosing which signing certificates to
+include in their firmware (such as Microsoft's - to still allow booting MS
+signed binaries), and two, by including their own personal signing key in their
+firmware, so they themself can sign binaries that they judge to be safe for
+booting on their system. However, while we absolutely should stand up for
+freedom and autonomy over one's own computing, we cannot deny that this comes
+at a cost. The cost being time and knowledge. We have, in fact, written a
+[simplified guide](https://github.com/DanielMYT/secureboot-scripts/issues/1)
+designed to make it as easy, fast and painless as possible for anyone to be
+able to take control of secure boot using this repository's scripts. However,
+it is not possible to totally bridge the gap. Some users will not even be
+aware of secure boot and how it works in the first place. Therefore, using
+"easy" workarounds like MassOS does is still the most ideal option for a
+distribution of its kind.
 
-Even if you aren't a user of MassOS, we hope you will agree with most of what
-has been written, and will therefore make the decision to take ownership and
-control over your own computer's secure boot environment, without the need to
-instead compromise the security of your machine by turning off secure boot
-entirely (which would also be the boring and easy way out if you really think
-about it). The scripts in this repository have been designed (and documented)
-to make the process as simple as possible. The author(s) can only hope you will
-benefit from it!
+But then again, this doesn't matter for you at the end of the day. The fact
+that you personally are reading this document right now indicates that you are
+interested in what has been described so far. You will very likely proceed
+with the process of taking control of your own PC's secure boot environment,
+because you want freedom and control over your own computing, WITHOUT giving
+up on security hardening which otherwise gets turned off if secure boot is off.
+Let's not forget it's also fun! Turning off secure boot is the easy and boring
+way out. Arguably so is just using a pre-existing Microsoft-signed **shim**.
+Whereas these scripts add a little bit of spice and excitement. Combined with
+the inevitable feeling of liberation after you have completed the process, What
+more could you want?
 
 # The process of taking control of secure boot
 
@@ -394,3 +420,14 @@ you do not sign binaries using the PK or KEK keys..
 # Licensing
 The scripts are Copyright (C) Daniel Massey and MIT licensed. See the LICENSE
 file for the license text.
+
+The **efitools** binary distribution stored in this repository, under the
+`efitools/distrib/` and `efitools/distribarm/` directories, have the license
+covering them contained within the tarball once it is decoded from the format
+used to store the binary distribution in this repository. This license is
+wholly separate to the licensing of this repository's own scripts.
+
+Signing certificates belonging to Microsoft Corporation and other entities are
+distributed here under the understanding that copyright law cannot protect what
+are essentially just very large randomly-generated numbers. As these are not
+considered creative works nor pieces of software.
