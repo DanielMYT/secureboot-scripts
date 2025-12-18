@@ -70,4 +70,16 @@ $_uuidgen > mykeys/owner.guid
 # Finishing message.
 echo "Your newly generated keys and certificates were placed in 'mykeys/'."
 echo "The owner GUID for your set is '$(cat mykeys/owner.guid)'."
-echo "You can now run 'create-databases.sh' to proceed."
+echo
+echo "You can now proceed with setting up extracerts if you haven't already."
+echo "Consult 'README.md' and 'extracerts/README.md' for full details."
+echo "But for the simplest usage, you can just run the following command:"
+echo
+echo "        cp -rv extracerts.DEFAULT/{db,kek} extracerts/"
+echo
+echo "This will pull in the Microsoft certificates."
+echo
+echo "OPTIONALLY, you can copy over some or all of 'extracerts.OPTIONAL' too."
+echo "Make sure you look inside 'extracerts.OPTIONAL' before copying, though."
+echo
+echo "In any case, after setting up extracerts, run 'create-databases.sh'."

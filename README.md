@@ -296,11 +296,28 @@ specifically, `extracerts/kek/` for additional KEK certificates, and
 `extracerts/db/` for additional db certificates. By default, there are none
 under this directory, but there is a default directory in the top-level of this
 repository, named `extracerts.DEFAULT`, which contains some common certificates
-you may wish to use directly. You can copy these over to the `extracerts/`
-directory by running the following command:
+you may wish to use directly (namely, the Microsoft ones). You can copy these
+over to the `extracerts/` directory by running the following command:
 ```sh
 cp -r extracerts.DEFAULT/{db,kek} extracerts/
 ```
+
+To copy over the OEM certificate(s), you first need to dump them:
+```
+./dump-existing.sh
+```
+
+And then copy over the OEM certificates (see the README.md file under
+`extracerts/` for full details):
+```
+cp -r dumped/oem-crt/{db,kek} extracerts/
+```
+
+Finally, there are some optional third-party certificates which aren't included
+by default, as some people may not need them. For example, the MassOS db cert
+now lives here. You can use the same command as above to copy them over if
+desired, replacing `DEFAULT` with `OPTIONAL`. But they are usually not needed.
+
 Full descriptions about each of these default certificates, as well as detailed
 information on how to customize them and add your own, such as device OEM
 certificates, can be found in [extracerts/README.md](extracerts/README.md). We

@@ -27,7 +27,7 @@ both KEK and db, which you may or may not want to include in your databases.
 To start, you can copy this entire directory over by running the following
 command (from the top-level directory of this repository):
 ```sh
-cp -r extracerts.DEFAULT/{db,kek} extracerts
+cp -r extracerts.DEFAULT/{db,kek} extracerts/
 ```
 
 By default, this default set contains the Microsoft certificates for both KEK
@@ -84,25 +84,15 @@ from your main system using the `dump-existing.sh` script, though this is only
 required if some utility or function that is built-in to the firmware is signed
 by such key. If this is not the case, you don't need OEM keys (and you probably
 don't need to dump in the first place either, since most firmwares have a
-"Restore Factory Keys" option). It should also be noted that `dump-existing.sh`
-dumps ALL certificates, only one of which should be the OEM's own one. The
-dumped certs will be placed in `dumped/KEK/crt` and `dumped/db/crt` for KEK and
-db respectively. On any given `.crt` file, you can use the following command to
-check which certificate it is:
-```sh
-openssl x509 -in NAME_OF_THE_CERTIFICATE_FILE.crt -noout -text
+"Restore Factory Keys" option). All dumped certs (including redundant Microsoft
+ones) will be placed in `dumped/ALL/KEK/crt` and `dumped/ALL/db/crt` for KEK
+and db respectively. The certificates which were detected to be OEM ones will
+be placed in `dumped/oem-crt/kek` and `dumped/oem-crt/db`. Therefore, it is now
+extrremely easy to copy those over to extracerts, and you can do so with the
+following command:
 ```
-And look for the line containing something like the following output:
-```sh
-Subject: CN=Example OEM Certificate
+cp -r dumped/oem-crt/{db,kek} extracerts/
 ```
-And the CN should be the OEM's name, NOT "Microsoft" or "Windows". There may
-also be other fields before CN, if the certificate also has physical address
-information, but you can ignore this, and only take note of CN. Not all OEMs
-will supply KEK or db keys, so you can ignore this entirely if this not the
-case. But once you've found which `.crt` certificate corresponds to your OEM,
-then you can copy it over to the `extracerts/` directory, again under the `db/`
-or `kek/` subdirectory depending upon which type of certificate it is.
 
 Here is an image showing the setup for an example system, with annotations to
 help explain it:
