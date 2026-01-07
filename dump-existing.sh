@@ -88,7 +88,7 @@ for v in KEK db; do
       done < <(find "${nocdirs[@]}" -type f -name \*.crt)
       if test "$matched" = "0"; then
         # Doesn't match any non-OEM certificates. So it's an OEM certificate.
-        echo "NOTE: Found OEM cert: '$(openssl x509 -in "$c" -noout -subject | sed 's/^subject=//')'."
+        echo "NOTE: Found OEM $v cert: '$(openssl x509 -in "$c" -noout -subject | sed 's/^subject=//')'."
         cp "$c" dumped/oem-crt/"$vl"/oem-"$vl"-"$oemname".crt
         oemname=$((oemname + 1))
       fi
